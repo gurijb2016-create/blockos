@@ -4,6 +4,8 @@
 #include "gfx.h"
 #include "input.h"
 #include "multiboot2.h"
+#include "fs.h"
+#include "recovery.h"
 
 
 static int fb_from_multiboot(uint32_t magic, uint32_t mbi_addr) {
@@ -45,8 +47,15 @@ void kmain(uint32_t magic, uint32_t mbi_addr) {
     ps2_kbd_init();
     ps2_mouse_init();
 
+    fs_init();
+    if (vfs_mount_root() != FS_OK) {
+        if (ext2_probe() != FS_OK && ramfs_mount() != FS_OK) {
+            recovery_enter("fs mount failed");
+        }
+    }
+
     if (!fb_from_multiboot(magic, mbi_addr)) {
-        for (;;) __asm__ volatile("hlt");
+        recovery_enter("framebuffer not available");
     }
 
     int32_t mx = (int32_t)(fb_width() / 2);
