@@ -20,6 +20,7 @@ SRC_C := \
 	kernel/core/log.c \
 	kernel/core/panic.c \
 	kernel/core/recovery.c \
+	kernel/core/boot_state.c \
 	kernel/arch/x86/gdt.c \
 	kernel/arch/x86/idt.c \
 	kernel/arch/x86/irq.c \
@@ -33,7 +34,8 @@ SRC_C := \
 	kernel/fs/ext2.c \
 	kernel/fs/ramfs.c \
 	kernel/gfx/fb.c \
-	kernel/gfx/blit.c
+	kernel/gfx/blit.c \
+	kernel/gfx/text.c
 
 SRC_S := \
 	boot/mb2_header.S \

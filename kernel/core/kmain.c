@@ -6,6 +6,7 @@
 #include "multiboot2.h"
 #include "fs.h"
 #include "recovery.h"
+#include "boot_state.h"
 
 
 static int fb_from_multiboot(uint32_t magic, uint32_t mbi_addr) {
@@ -44,19 +45,26 @@ void kmain(uint32_t magic, uint32_t mbi_addr) {
     kheap_init();
 
     pit_init();
+    boot_state_set_pit(1);
     ps2_kbd_init();
+    boot_state_set_keyboard(1);
     ps2_mouse_init();
+    boot_state_set_mouse(1);
 
     fs_init();
     if (vfs_mount_root() != FS_OK) {
         if (ext2_probe() != FS_OK && ramfs_mount() != FS_OK) {
+            boot_state_set_fs(0);
             recovery_enter("fs mount failed");
         }
     }
+    boot_state_set_fs(1);
 
     if (!fb_from_multiboot(magic, mbi_addr)) {
+        boot_state_set_framebuffer(0);
         recovery_enter("framebuffer not available");
     }
+    boot_state_set_framebuffer(1);
 
     int32_t mx = (int32_t)(fb_width() / 2);
     int32_t my = (int32_t)(fb_height() / 2);
