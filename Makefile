@@ -32,6 +32,7 @@ SRC_C := \
 	kernel/arch/x86/gdt.c \
 	kernel/arch/x86/idt.c \
 	kernel/arch/x86/irq.c \
+	kernel/arch/x86/pic.c \
 	kernel/mm/pmm.c \
 	kernel/mm/vmm.c \
 	kernel/mm/kheap.c \
