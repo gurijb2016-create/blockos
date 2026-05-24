@@ -4,10 +4,13 @@
 _start:
   cli
   mov $stack_top, %esp
+  push %ebx
+  push %eax
   call kmain
 .hang:
   hlt
   jmp .hang
+
 .section .bss
 .align 16
 stack_bottom:
