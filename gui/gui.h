@@ -1,15 +1,14 @@
 #ifndef GUI_H
 #define GUI_H
 
-#include <stdint.h>
-#include <stdbool.h>
+#include "../kernel/types.h"
 
-// VGA mode constants
+/* VGA mode constants */
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
 #define SCREEN_BUFFER 0xA0000
 
-// Color palette (256 color mode)
+/* Color palette (256 color mode) */
 typedef uint8_t Color;
 
 #define COLOR_BLACK 0x00
@@ -29,7 +28,7 @@ typedef uint8_t Color;
 #define COLOR_YELLOW 0x0E
 #define COLOR_WHITE 0x0F
 
-// Button structure
+/* Button structure */
 typedef struct {
     uint16_t x;
     uint16_t y;
@@ -42,7 +41,7 @@ typedef struct {
     bool pressed;
 } Button;
 
-// GUI functions
+/* GUI functions */
 void gui_init(void);
 void gui_clear(Color bg_color);
 void gui_set_pixel(uint16_t x, uint16_t y, Color color);
@@ -53,16 +52,16 @@ void gui_draw_circle(uint16_t x, uint16_t y, uint16_t radius, Color color);
 void gui_draw_char(uint16_t x, uint16_t y, char c, Color color);
 void gui_draw_string(uint16_t x, uint16_t y, const char* str, Color color);
 
-// Button functions
+/* Button functions */
 Button* gui_create_button(uint16_t x, uint16_t y, uint16_t width, uint16_t height, 
                           const char* label, Color color, void (*on_click)(void));
 void gui_draw_button(Button* btn);
 void gui_handle_button_click(Button* btn, uint16_t click_x, uint16_t click_y);
 
-// Mouse cursor
+/* Mouse cursor */
 void gui_draw_cursor(uint16_t x, uint16_t y, Color color);
 
-// Screen update
+/* Screen update */
 void gui_update(void);
 
 #endif
