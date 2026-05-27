@@ -181,7 +181,6 @@ void gui_draw_string(uint16_t x, uint16_t y, const char* str, Color color) {
     }
 }
 
-/* Button widget */
 Button* gui_create_button(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
                           const char* label, Color color, void (*on_click)(void)) {
     static Button button_storage[16];
@@ -238,7 +237,6 @@ void gui_button_set_enabled(Button* btn, bool enabled) {
     if (btn) btn->enabled = enabled;
 }
 
-/* TextBox widget */
 TextBox* gui_create_textbox(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
                             uint16_t max_length) {
     static TextBox textbox_storage[8];
@@ -291,7 +289,6 @@ void gui_textbox_set_focused(TextBox* box, bool focused) {
     if (box) box->focused = focused;
 }
 
-/* Label widget */
 Label* gui_create_label(uint16_t x, uint16_t y, const char* text, Color color) {
     static Label label_storage[32];
     static int label_count = 0;
@@ -315,7 +312,6 @@ void gui_label_set_text(Label* lbl, const char* text) {
     if (lbl) lbl->text = text;
 }
 
-/* CheckBox widget */
 CheckBox* gui_create_checkbox(uint16_t x, uint16_t y, const char* label, Color color) {
     static CheckBox checkbox_storage[16];
     static int checkbox_count = 0;
@@ -357,9 +353,8 @@ void gui_handle_checkbox_click(CheckBox* cb, uint16_t click_x, uint16_t click_y)
     }
 }
 
-/* ProgressBar widget */
 ProgressBar* gui_create_progressbar(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
-                                     Color bg_color, Color fill_color) {
+                                    Color bg_color, Color fill_color) {
     static ProgressBar progressbar_storage[8];
     static int progressbar_count = 0;
     
@@ -390,7 +385,6 @@ void gui_progressbar_set_value(ProgressBar* pb, uint8_t percentage) {
     if (pb && percentage <= 100) pb->percentage = percentage;
 }
 
-/* Window widget */
 Window* gui_create_window(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
                           const char* title, Color title_color) {
     static Window window_storage[4];
