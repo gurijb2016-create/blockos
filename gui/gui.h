@@ -28,7 +28,7 @@ typedef uint8_t Color;
 #define COLOR_YELLOW 0x0E
 #define COLOR_WHITE 0x0F
 
-/* Button structure */
+/* Button widget */
 typedef struct {
     uint16_t x;
     uint16_t y;
@@ -42,7 +42,7 @@ typedef struct {
     bool enabled;
 } Button;
 
-/* TextBox structure */
+/* TextBox widget */
 typedef struct {
     uint16_t x;
     uint16_t y;
@@ -50,31 +50,31 @@ typedef struct {
     uint16_t height;
     Color bg_color;
     Color text_color;
-    char buffer[256];
     uint16_t cursor_pos;
     uint16_t max_length;
     bool focused;
+    char buffer[256];
 } TextBox;
 
-/* Label structure */
+/* Label widget */
 typedef struct {
     uint16_t x;
     uint16_t y;
-    Color text_color;
     const char* text;
+    Color text_color;
 } Label;
 
-/* CheckBox structure */
+/* CheckBox widget */
 typedef struct {
     uint16_t x;
     uint16_t y;
+    const char* label;
     Color color;
     Color text_color;
-    const char* label;
     bool checked;
 } CheckBox;
 
-/* ProgressBar structure */
+/* ProgressBar widget */
 typedef struct {
     uint16_t x;
     uint16_t y;
@@ -85,20 +85,20 @@ typedef struct {
     uint8_t percentage;
 } ProgressBar;
 
-/* Window structure */
+/* Window widget */
 typedef struct {
     uint16_t x;
     uint16_t y;
     uint16_t width;
     uint16_t height;
+    const char* title;
     Color title_color;
     Color bg_color;
-    const char* title;
     bool visible;
     bool draggable;
 } Window;
 
-/* Basic drawing functions */
+/* Core GUI functions */
 void gui_init(void);
 void gui_clear(Color bg_color);
 void gui_set_pixel(uint16_t x, uint16_t y, Color color);
@@ -110,39 +110,38 @@ void gui_fill_circle(uint16_t x, uint16_t y, uint16_t radius, Color color);
 void gui_draw_char(uint16_t x, uint16_t y, char c, Color color);
 void gui_draw_string(uint16_t x, uint16_t y, const char* str, Color color);
 
-/* Button widget */
+/* Button functions */
 Button* gui_create_button(uint16_t x, uint16_t y, uint16_t width, uint16_t height, 
                           const char* label, Color color, void (*on_click)(void));
 void gui_draw_button(Button* btn);
 void gui_handle_button_click(Button* btn, uint16_t click_x, uint16_t click_y);
 void gui_button_set_enabled(Button* btn, bool enabled);
 
-/* TextBox widget */
-TextBox* gui_create_textbox(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
-                            uint16_t max_length);
+/* TextBox functions */
+TextBox* gui_create_textbox(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t max_length);
 void gui_draw_textbox(TextBox* box);
 void gui_textbox_input_char(TextBox* box, char c);
 void gui_textbox_backspace(TextBox* box);
 void gui_textbox_set_focused(TextBox* box, bool focused);
 
-/* Label widget */
+/* Label functions */
 Label* gui_create_label(uint16_t x, uint16_t y, const char* text, Color color);
 void gui_draw_label(Label* lbl);
 void gui_label_set_text(Label* lbl, const char* text);
 
-/* CheckBox widget */
+/* CheckBox functions */
 CheckBox* gui_create_checkbox(uint16_t x, uint16_t y, const char* label, Color color);
 void gui_draw_checkbox(CheckBox* cb);
 void gui_checkbox_toggle(CheckBox* cb);
 void gui_handle_checkbox_click(CheckBox* cb, uint16_t click_x, uint16_t click_y);
 
-/* ProgressBar widget */
+/* ProgressBar functions */
 ProgressBar* gui_create_progressbar(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
-                                     Color bg_color, Color fill_color);
+                                    Color bg_color, Color fill_color);
 void gui_draw_progressbar(ProgressBar* pb);
 void gui_progressbar_set_value(ProgressBar* pb, uint8_t percentage);
 
-/* Window widget */
+/* Window functions */
 Window* gui_create_window(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
                           const char* title, Color title_color);
 void gui_draw_window(Window* win);
