@@ -1,21 +1,35 @@
 #include "shell.h"
 #include "../libc/libc.h"
 #include "../kernel/types.h"
+#include "../kernel/syscall.h"
 
 static char current_dir[256] = "/";
 static int shell_running = 1;
+static char command_history[100][256];
+static int history_index = 0;
 
 void shell_init(void) {
     strcpy(current_dir, "/");
     shell_running = 1;
+    history_index = 0;
 }
 
 void shell_run(void) {
+    printf("blockOS 2.0 - Linux Compatible Shell\n");
+    printf("Type 'help' for command list\n\n");
+    
     while (shell_running) {
         shell_prompt();
         char* line = shell_read_line();
         
-        if (!line) continue;
+        if (!line || strlen(line) == 0) {
+            continue;
+        }
+        
+        /* Save to history */
+        if (history_index < 100) {
+            strcpy(command_history[history_index++], line);
+        }
         
         shell_command_t* cmd = shell_parse_command(line);
         if (cmd) {
@@ -70,15 +84,14 @@ shell_command_t* shell_parse_command(const char* line) {
     strcpy(buffer, line);
     
     char* token = (char*)buffer;
-    int i = 0;
     
     while (*token && cmd->argc < 256) {
-        while (*token == ' ') token++;
+        while (*token == ' ' || *token == '\t') token++;
         
         if (*token == 0) break;
         
         char* start = token;
-        while (*token && *token != ' ') token++;
+        while (*token && *token != ' ' && *token != '\t') token++;
         
         int len = token - start;
         cmd->argv[cmd->argc] = (char*)malloc(len + 1);
@@ -151,6 +164,7 @@ int shell_builtin_echo(int argc, char* argv[]) {
 }
 
 int shell_builtin_exit(int argc, char* argv[]) {
+    printf("blockos: logout\n");
     shell_running = 0;
     return 0;
 }
@@ -159,7 +173,12 @@ int shell_builtin_cd(int argc, char* argv[]) {
     if (argc < 2) {
         strcpy(current_dir, "/");
     } else {
-        strcpy(current_dir, argv[1]);
+        if (argv[1][0] == '/') {
+            strcpy(current_dir, argv[1]);
+        } else {
+            strcat(current_dir, "/");
+            strcat(current_dir, argv[1]);
+        }
     }
     return 0;
 }
@@ -170,88 +189,93 @@ int shell_builtin_pwd(int argc, char* argv[]) {
 }
 
 int shell_builtin_ls(int argc, char* argv[]) {
-    printf("blockos:ls - listing directory\n");
+    printf("blockos: ls %s\n", argc > 1 ? argv[1] : current_dir);
     return 0;
 }
 
 int shell_builtin_mkdir(int argc, char* argv[]) {
     if (argc < 2) {
-        printf("mkdir: missing directory name\n");
+        printf("mkdir: missing operand\n");
         return -1;
     }
-    mkdir(argv[1], 0755);
-    return 0;
+    printf("blockos: mkdir %s\n", argv[1]);
+    return syscall_mkdir(argv[1], 0755);
 }
 
 int shell_builtin_rmdir(int argc, char* argv[]) {
     if (argc < 2) {
-        printf("rmdir: missing directory name\n");
+        printf("rmdir: missing operand\n");
         return -1;
     }
-    rmdir(argv[1]);
-    return 0;
+    printf("blockos: rmdir %s\n", argv[1]);
+    return syscall_rmdir(argv[1]);
 }
 
 int shell_builtin_rm(int argc, char* argv[]) {
     if (argc < 2) {
-        printf("rm: missing file name\n");
+        printf("rm: missing operand\n");
         return -1;
     }
-    unlink(argv[1]);
-    return 0;
+    printf("blockos: rm %s\n", argv[1]);
+    return syscall_unlink(argv[1]);
 }
 
 int shell_builtin_cp(int argc, char* argv[]) {
     if (argc < 3) {
-        printf("cp: missing arguments\n");
+        printf("cp: missing operand\n");
         return -1;
     }
-    printf("blockos:cp %s to %s\n", argv[1], argv[2]);
+    printf("blockos: cp %s to %s\n", argv[1], argv[2]);
     return 0;
 }
 
 int shell_builtin_mv(int argc, char* argv[]) {
     if (argc < 3) {
-        printf("mv: missing arguments\n");
+        printf("mv: missing operand\n");
         return -1;
     }
-    printf("blockos:mv %s to %s\n", argv[1], argv[2]);
+    printf("blockos: mv %s to %s\n", argv[1], argv[2]);
     return 0;
 }
 
 int shell_builtin_cat(int argc, char* argv[]) {
     if (argc < 2) {
-        printf("cat: missing file name\n");
+        printf("cat: missing operand\n");
         return -1;
     }
-    printf("blockos:cat %s\n", argv[1]);
+    printf("blockos: cat %s\n", argv[1]);
     return 0;
 }
 
 int shell_builtin_grep(int argc, char* argv[]) {
     if (argc < 3) {
-        printf("grep: missing arguments\n");
+        printf("grep: missing operand\n");
         return -1;
     }
-    printf("blockos:grep %s in %s\n", argv[1], argv[2]);
+    printf("blockos: grep %s in %s\n", argv[1], argv[2]);
     return 0;
 }
 
 int shell_builtin_help(int argc, char* argv[]) {
-    printf("blockOS 2.0 - Linux Compatible Shell\n\n");
+    printf("\n=== blockOS 2.0 - Linux Compatible Shell ===\n\n");
     printf("Built-in commands:\n");
-    printf("  echo   - Display text\n");
-    printf("  cd     - Change directory\n");
-    printf("  pwd    - Print working directory\n");
-    printf("  ls     - List files\n");
-    printf("  mkdir  - Create directory\n");
-    printf("  rmdir  - Remove directory\n");
-    printf("  rm     - Remove file\n");
-    printf("  cp     - Copy file\n");
-    printf("  mv     - Move file\n");
-    printf("  cat    - Display file\n");
-    printf("  grep   - Search text\n");
-    printf("  exit   - Exit shell\n");
-    printf("  help   - Show this help\n");
+    printf("  echo   <text>          - Display text\n");
+    printf("  cd     [directory]     - Change directory\n");
+    printf("  pwd                    - Print working directory\n");
+    printf("  ls     [path]          - List files\n");
+    printf("  mkdir  <directory>     - Create directory\n");
+    printf("  rmdir  <directory>     - Remove directory\n");
+    printf("  rm     <file>          - Remove file\n");
+    printf("  cp     <src> <dst>     - Copy file\n");
+    printf("  mv     <src> <dst>     - Move file\n");
+    printf("  cat    <file>          - Display file contents\n");
+    printf("  grep   <text> <file>   - Search in file\n");
+    printf("  help                   - Show this help\n");
+    printf("  exit                   - Exit shell\n\n");
+    printf("Examples:\n");
+    printf("  echo Hello World\n");
+    printf("  cd /home\n");
+    printf("  mkdir mydir\n");
+    printf("  cat file.txt\n\n");
     return 0;
 }
