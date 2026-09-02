@@ -5,11 +5,15 @@ ASM = nasm
 LD = ld
 QEMU = qemu-system-i386
 
-CFLAGS = -m32 -fno-stack-protector -nostdlib -nostdinc -fno-pic
+
+CFLAGS = -m32 -std=gnu99 -ffreestanding \
+         -fno-stack-protector -fno-pic \
+         -nostdlib -nostdinc -Ikernel
+
 ASMFLAGS = -f elf32
 LDFLAGS = -m elf_i386 -T linker.ld
 
-SOURCES = kernel/main.c drivers/ps2_mouse.c gui/gui.c
+SOURCES = kernel/main.c drivers/ps2_mouse.c gui/gui.c kernel/string.c
 ASM_SOURCES = boot/io.asm
 
 OBJECTS = $(SOURCES:.c=.o) $(ASM_SOURCES:.asm=.o)
